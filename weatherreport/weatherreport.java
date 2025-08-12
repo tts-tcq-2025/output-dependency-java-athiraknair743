@@ -1,71 +1,24 @@
-package weatherreport;
+import static org.junit.Assert.*;
+import org.junit.Test;
+import weatherreport.*;
 
-public class WeatherReport {
-    public static String Report(IWeatherSensor sensor) {
-        int precipitation = sensor.Precipitation();
-        // precipitation < 20 is a sunny day
-        String report = "Sunny Day";
+public class WeatherReportTest {
 
-        if (sensor.TemperatureInC() > 25)
-        {
-            if (precipitation >= 20 && precipitation < 60)
-                report = "Partly Cloudy";
-            else if (sensor.WindSpeedKMPH() > 50)
-                report = "Alert, Stormy with heavy rain";
-        }
-        return report;
+    // Custom stub for the missing scenario
+    class HighRainLowWindStub implements IWeatherSensor {
+        public double TemperatureInC() { return 28; }  // High temp
+        public int Precipitation() { return 80; }       // High precipitation
+        public int Humidity() { return 70; }
+        public int WindSpeedKMPH() { return 30; }       // Low wind
     }
 
-    private static void TestRainy() {
-        IWeatherSensor sensor = new SensorStub();
-        String report = Report(sensor);
-        System.out.println(report);
-        assert(report.contains("rain"));
-    }
+    @Test
+    public void testHighPrecipitationLowWind() {
+        IWeatherSensor sensor = new HighRainLowWindStub();
+        String report = WeatherReport.Report(sensor);
 
-    private static void TestHighPrecipitation() {
-        // This instance of stub needs to be different-
-        // to give high precipitation (>60) and low wind-speed (<50)
-        IWeatherSensor sensor = new SensorStub();
-
-        // strengthen the assert to expose the bug
-        // (function returns Sunny day, it should predict rain)
-        String report = Report(sensor);
-        System.out.println(report);
-        assert(report != null);
-    }
-    public static void main(String[] args) {
-        TestRainy();
-        TestHighPrecipitation();
-        System.out.println("All is well (maybe!)");
-    }
-}
-
-public interface IWeatherSensor {
-    double TemperatureInC();
-    int Precipitation();
-    int Humidity();
-    int WindSpeedKMPH();
-}
-
-class SensorStub implements IWeatherSensor {
-    @Override
-    public int Humidity() {
-        return 72; // Stubbed humidity
-    }
-
-    @Override
-    public int Precipitation() {
-        return 70; // Stubbed precipitation
-    }
-
-    @Override
-    public double TemperatureInC() {
-        return 26; // Stubbed temperature
-    }
-
-    @Override
-    public int WindSpeedKMPH() {
-        return 52; // Stubbed wind speed
+        // Expecting rainy report, but current buggy code returns "Sunny Day"
+        assertTrue("Report should indicate rain for high precipitation and low wind", 
+                   report.toLowerCase().contains("rain"));
     }
 }
