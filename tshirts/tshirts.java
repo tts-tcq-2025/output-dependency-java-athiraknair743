@@ -1,18 +1,17 @@
-public class Tshirts {
-    static String size(int cms) {
-        if(cms < 38) {
-            return "S";
-        } else if(cms > 38 && cms < 42) {
-            return "M";
-        } else {
-            return "L";
-        }
-    }
+import static org.junit.Assert.*;
+import org.junit.Test;
 
-    public static void main(String[] args) { 
-        assert(size(37) == "S");
-        assert(size(40) == "M");
-        assert(size(43) == "L");
-        System.out.println("All is well (maybe!)");
+public class TshirtsTest {
+
+    @Test
+    public void testTshirtSizes() {
+        // Existing cases (should still pass)
+        assertEquals("S", Tshirts.size(37));
+        assertEquals("M", Tshirts.size(40));
+        assertEquals("L", Tshirts.size(43));
+
+        // Boundary case — currently buggy
+        assertEquals("M", Tshirts.size(38)); 
+        // This will FAIL with current code because size(38) returns "L"
     }
 }
